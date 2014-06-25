@@ -1,0 +1,15 @@
+{
+    "name": "adri/wtf",
+    "description": "",
+    "minimum-stability": "stable",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Adrian Philipp",
+            "email": "mail@adrian-philipp.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {"Adri\\": "src/Adri"}
+    }
+}
