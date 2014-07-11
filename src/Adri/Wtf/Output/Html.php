@@ -1,6 +1,9 @@
 <?php
 namespace Adri\Wtf\Output;
 
+use Adri\Wtf\ErrorLog;
+use Adri\Wtf\Solution;
+
 class Html {
 
     public function write($string)
@@ -8,4 +11,13 @@ class Html {
        echo $string;
     }
 
+    public function writeError(ErrorLog $errorLog)
+    {
+        $this->write($errorLog);
+    }
+
+    public function writeSolution(Solution $solution)
+    {
+        $this->write($solution);
+    }
 }

@@ -2,7 +2,7 @@
 
 require_once 'vendor/autoload.php';
 
-\Adri\Wtf\Wtf::register();
+\Adri\Wtf\Wtf::init();
 
 class Test
 {
