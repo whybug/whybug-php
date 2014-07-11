@@ -2,7 +2,8 @@
 
 namespace Adri\Wtf;
 
-use Adri\Wtf\Output\Terminal;
+
+use Adri\Wtf\Output\Console;
 
 class Wtf
 {
@@ -14,27 +15,32 @@ class Wtf
     public function __construct(array $config)
     {
         $this->config = $config;
-        $this->output = new Terminal;
+        $this->output = new Console();
     }
 
-    public static function register()
+    public static function init()
     {
         // When installed using composer, the user config is in the project root.
         $userConfig = __DIR__ . '/../../../../../wtf.config.ini';
         $config = file_exists($userConfig) ? $userConfig : __DIR__ . '/../../../config.default.ini';
 
         $wtf = new self(parse_ini_file($config));
-        $wtf->existingErrorHandler = set_error_handler(array($wtf, 'handleError'), E_ALL);
-        $wtf->existingExceptionHandler = set_exception_handler(array($wtf, 'handleException'));
-        register_shutdown_function(array($wtf, 'handleFatalError'));
+        $wtf->register();
 
         return $wtf;
+    }
+
+    public function register()
+    {
+        $this->existingErrorHandler = set_error_handler(array($this, 'handleError'), E_ALL);
+        $this->existingExceptionHandler = set_exception_handler(array($this, 'handleException'));
+        register_shutdown_function(array($this, 'handleFatalError'));
     }
 
     public function unregister()
     {
         if (is_callable($this->existingErrorHandler)) {
-            set_error_handler($this->existingErrorHandler, error_reporting());
+            restore_error_handler();
         }
 
         if (is_callable($this->existingExceptionHandler)) {
@@ -45,14 +51,22 @@ class Wtf
     /**
      * @param $error
      */
-    public function handleError($code, $message, $file = '', $line = 0, $context=array())
+    public function handleError($code, $message, $file = '', $line = 0, $context = array())
     {
         if (is_callable($this->existingErrorHandler)) {
             call_user_func($this->existingErrorHandler, $code, $message, $file, $line, $context);
         }
 
-        $error = compact('code', 'message', 'file', 'line', 'context');
-        $this->printSolutions($this->getSolutions(ErrorLog::fromError($error)));
+        $this->printSolutions(ErrorLog::fromError($code, $message, $file, $line));
+    }
+
+    public function handleException(\Exception $exception)
+    {
+        if (is_callable($this->existingExceptionHandler)) {
+            call_user_func($this->existingErrorHandler, $exception);
+        }
+
+        $this->printSolutions(ErrorLog::fromException($exception));
     }
 
     public function handleFatalError()
@@ -65,15 +79,10 @@ class Wtf
 
         if ($error['type'] & $errors) {
             $this->handleException(new \ErrorException(
-                @$error['message'], @$error['type'], @$error['type'],
-                @$error['file'], @$error['line']
-            ));
+                    @$error['message'], @$error['type'], @$error['type'],
+                    @$error['file'], @$error['line']
+                ));
         }
-    }
-
-    public function handleException(\Exception $exception)
-    {
-        $this->printSolutions($this->getSolutions(ErrorLog::fromException($exception)));
     }
 
     /**
@@ -86,28 +95,36 @@ class Wtf
 
         $context = stream_context_create(array(
             'http' => array(
-                'header' => 'Content-type: application/json',
+                'method' => 'POST',
+                'header' => "Content-type: application/json\r\n",
                 'content' => json_encode($error),
-                'proxy' => $this->config['wtf.proxy']
+                'proxy' => $this->config['wtf.proxy'],
+                'timeout' => $this->config['wtf.timeout']
             )
         ));
 
-        $response = @file_get_contents($url, null, $context);
+        $response = file_get_contents($url, null, $context);
 
         if (!$response) {
             return array();
         }
 
-        return array_map('\Adri\Wtf\Solution::fromArray', json_decode($response, true));
+        $error = json_decode($response, true);
+
+        if (!empty($error['solutions'])) {
+            return array_map('\Adri\Wtf\Solution::fromArray', $error['solutions']);
+        }
+
+        return array();
     }
 
     /**
      * @param Solution[] $solutions
      */
-    protected function printSolutions(array $solutions)
+    protected function printSolutions(ErrorLog $errorLog)
     {
-        foreach ($solutions as $solution) {
-            $this->output->write($solution->getDescription());
+        foreach ($this->getSolutions($errorLog) as $solution) {
+            $this->output->writeSolution($solution);
         }
     }
 }
