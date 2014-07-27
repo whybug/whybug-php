@@ -1,5 +1,5 @@
 <?php
-namespace Adri\Wtf;
+namespace Whybug;
 
 class Solution
 {

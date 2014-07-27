@@ -1,5 +1,5 @@
 {
-    "name": "adri/wtf",
+    "name": "whybug/whybug-php",
     "description": "",
     "minimum-stability": "stable",
     "license": "proprietary",
@@ -10,6 +10,6 @@
         }
     ],
     "autoload": {
-        "psr-4": {"Adri\\": "src/Adri"}
+        "psr-4": {"Whybug\\": "src/Whybug"}
     }
 }

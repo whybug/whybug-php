@@ -1,17 +1,18 @@
 <?php
-namespace Adri\Wtf\Output;
+namespace Whybug\Output;
 
-use Adri\Wtf\ErrorLog;
-use Adri\Wtf\Solution;
+use Whybug\Error;
+use Whybug\Solution;
 
-class Html {
+class Console implements Output
+{
 
     public function write($string)
     {
-       echo $string;
+        echo $string;
     }
 
-    public function writeError(ErrorLog $errorLog)
+    public function writeError(Error $errorLog)
     {
         $this->write($errorLog);
     }
@@ -20,4 +21,5 @@ class Html {
     {
         $this->write($solution);
     }
+
 }

@@ -1,33 +1,40 @@
 <?php
+namespace Whybug;
 
-namespace Adri\Wtf;
+use Whybug\Output\Console;
+use Whybug\Output\Output;
+use Whybug\Store\HttpStore;
+use Whybug\Store\Store;
 
-
-use Adri\Wtf\Output\Console;
-
-class Wtf
+class Tracker
 {
     protected $output;
     protected $config;
+    protected $store;
     protected $existingErrorHandler;
     protected $existingExceptionHandler;
 
-    public function __construct(array $config)
+    public function __construct(array $config, Output $output, Store $store)
     {
         $this->config = $config;
-        $this->output = new Console();
+        $this->output = $output;
+        $this->store = $store;
     }
 
-    public static function init()
+    public static function trackErrors(array $config = array())
     {
-        // When installed using composer, the user config is in the project root.
-        $userConfig = __DIR__ . '/../../../../../wtf.config.ini';
-        $config = file_exists($userConfig) ? $userConfig : __DIR__ . '/../../../config.default.ini';
-
-        $wtf = new self(parse_ini_file($config));
+        $wtf = self::fromConfig($config);
         $wtf->register();
 
         return $wtf;
+    }
+
+    public static function fromConfig(array $config = array())
+    {
+        $output = new Console;
+        $store = new HttpStore($config['endpoint'], $config['timeout'], $config['proxy']);
+
+        return new self($config, $output, $store);
     }
 
     public function register()
@@ -57,7 +64,7 @@ class Wtf
             call_user_func($this->existingErrorHandler, $code, $message, $file, $line, $context);
         }
 
-        $this->printSolutions(ErrorLog::fromError($code, $message, $file, $line));
+        $this->printSolutions(Error::fromError($code, $message, $file, $line));
     }
 
     public function handleException(\Exception $exception)
@@ -66,7 +73,7 @@ class Wtf
             call_user_func($this->existingErrorHandler, $exception);
         }
 
-        $this->printSolutions(ErrorLog::fromException($exception));
+        $this->printSolutions(Error::fromException($exception));
     }
 
     public function handleFatalError()
@@ -79,49 +86,28 @@ class Wtf
 
         if ($error['type'] & $errors) {
             $this->handleException(new \ErrorException(
-                    @$error['message'], @$error['type'], @$error['type'],
-                    @$error['file'], @$error['line']
-                ));
+                $error['message'], $error['type'], $error['type'],
+                $error['file'], $error['line']
+            ));
         }
     }
 
     /**
-     * @param ErrorLog $error
+     * @param Error $error
+     *
      * @return Solution[]
      */
-    protected function getSolutions(ErrorLog $error)
+    protected function getSolutions(Error $error)
     {
-        $url = $this->config['wtf.url'];
+        $solutions = $this->store->storeError($error);
 
-        $context = stream_context_create(array(
-            'http' => array(
-                'method' => 'POST',
-                'header' => "Content-type: application/json\r\n",
-                'content' => json_encode($error),
-                'proxy' => $this->config['wtf.proxy'],
-                'timeout' => $this->config['wtf.timeout']
-            )
-        ));
-
-        $response = file_get_contents($url, null, $context);
-
-        if (!$response) {
-            return array();
-        }
-
-        $error = json_decode($response, true);
-
-        if (!empty($error['solutions'])) {
-            return array_map('\Adri\Wtf\Solution::fromArray', $error['solutions']);
-        }
-
-        return array();
+        return $solutions->getSolutions();
     }
 
     /**
      * @param Solution[] $solutions
      */
-    protected function printSolutions(ErrorLog $errorLog)
+    protected function printSolutions(Error $errorLog)
     {
         foreach ($this->getSolutions($errorLog) as $solution) {
             $this->output->writeSolution($solution);

@@ -1,8 +1,7 @@
 <?php
-namespace Adri\Wtf;
+namespace Whybug;
 
-
-class ErrorLog implements \JsonSerializable
+class Error
 {
     const VERSION = '0.0.1';
 
@@ -71,15 +70,13 @@ class ErrorLog implements \JsonSerializable
             case 30719: return 'E_ALL'; break;
             default:    return 'E_UNKNOWN'; break;
         }
-
     }
-
 
     /**
      * @inheritdoc
      * @return array
      */
-    function jsonSerialize()
+    function toArray()
     {
         return get_object_vars($this);
     }
