@@ -105,11 +105,11 @@ class Tracker
     }
 
     /**
-     * @param Solution[] $solutions
+     * @param Error $error
      */
-    protected function printSolutions(Error $errorLog)
+    protected function printSolutions(Error $error)
     {
-        foreach ($this->getSolutions($errorLog) as $solution) {
+        foreach ($this->getSolutions($error) as $solution) {
             $this->output->writeSolution($solution);
         }
     }

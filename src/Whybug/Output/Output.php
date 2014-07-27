@@ -6,7 +6,7 @@ use Whybug\Solution;
 
 interface Output
 {
-    public function writeError(Error $errorLog);
+    public function writeError(Error $error);
 
     public function writeSolution(Solution $solution);
 }

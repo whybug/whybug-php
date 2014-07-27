@@ -12,9 +12,9 @@ class Console implements Output
         echo $string;
     }
 
-    public function writeError(Error $errorLog)
+    public function writeError(Error $error)
     {
-        $this->write($errorLog);
+        $this->write($error);
     }
 
     public function writeSolution(Solution $solution)
