@@ -11,5 +11,11 @@
     ],
     "autoload": {
         "psr-4": {"Whybug\\": "src/Whybug"}
+    },
+    "scripts": {
+      "post-update-cmd": "Whybug\\Installer::postUpdate",
+      "post-package-install": [
+        "Whybug\\Installer::postInstall"
+      ]
     }
 }

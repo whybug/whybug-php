@@ -34,7 +34,7 @@ class HttpStore implements Store
             )
         ));
 
-        $response = file_get_contents($this->endpoint, null, $context);
+        $response = file_get_contents($this->endpoint, false, $context);
 
         return Solutions::fromResponse($response);
     }
