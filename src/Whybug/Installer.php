@@ -7,12 +7,12 @@ class Installer {
 
     public function postInstall(Event $event)
     {
-
+        var_dump($event);
     }
 
     public function postUpdate(Event $event)
     {
-
+        var_dump($event);
     }
 
     public function install()
