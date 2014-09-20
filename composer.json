@@ -6,15 +6,10 @@
     "authors": [
         {
             "name": "Adrian Philipp",
-            "email": "mail@adrian-philipp.com"
+            "email": "info@whybug.com"
         }
     ],
     "autoload": {
         "psr-4": {"Whybug\\": "src/Whybug"}
-    },
-    "scripts": {
-      "post-update-cmd": "Whybug\\Installer::postUpdate",
-      "post-install-cmd": [ "Whybug\\Installer::postInstall" ],
-      "post-package-install": [ "Whybug\\Installer::postInstall" ]
     }
 }
