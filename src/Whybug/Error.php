@@ -3,35 +3,36 @@ namespace Whybug;
 
 class Error
 {
-    const VERSION = '0.0.1';
+    const PROTOCOL_VERSION = '1.0';
 
-    protected $programmingLanguage;
-    protected $programmingLanguageVersion;
-    protected $errorMessage;
-    protected $errorCode;
-    protected $errorLevel;
-    protected $filePath;
+    protected $programminglanguage;
+    protected $programminglanguage_version;
+    protected $message;
+    protected $code;
+    protected $level;
+    protected $file_path;
     protected $line;
-    protected $version;
+    protected $os;
+    protected $os_version;
 
     public function __construct()
     {
-        $this->version = self::VERSION;
-        $this->programmingLanguage = 'php';
-        $this->programmingLanguageVersion = PHP_VERSION;
-
+        $this->protocol_version = self::PROTOCOL_VERSION;
+        $this->programminglanguage = 'php';
+        $this->programminglanguage_version = PHP_VERSION;
+        $this->os = php_uname('s');
+        $this->os_version = php_uname('r');
         // todo: url, framework, stacktrace?
-        // $errorLog->url = $error['url'];
     }
 
     public static function fromError($code, $message, $file, $line)
     {
         $error = new self();
 
-        $error->errorMessage = $message;
-        $error->errorCode = (string) $code;
-        $error->errorLevel = self::errorCodeToString($code);
-        $error->filePath = $file;
+        $error->message = $message;
+        $error->code = (string) $code;
+        $error->level = self::errorCodeToString($code);
+        $error->file_path = $file;
         $error->line = $line;
 
         return $error;
@@ -41,10 +42,10 @@ class Error
     {
         $error = new self();
 
-        $error->errorMessage =  $exception->getMessage();
-        $error->errorCode =  (string) $exception->getCode();
-        $error->errorLevel =  'exception';
-        $error->filePath =  $exception->getFile();
+        $error->message =  $exception->getMessage();
+        $error->code =  (string) $exception->getCode();
+        $error->level =  'exception';
+        $error->file_path =  $exception->getFile();
         $error->line =  $exception->getLine();
 
         return $error;
@@ -84,6 +85,6 @@ class Error
 
     public function __toString()
     {
-       return "$this->errorMessage on line $this->line";
+       return "$this->message on line $this->line";
     }
 }
