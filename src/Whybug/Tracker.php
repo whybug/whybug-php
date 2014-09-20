@@ -8,10 +8,29 @@ use Whybug\Store\Store;
 
 class Tracker
 {
+    /**
+     * @var Output
+     */
     protected $output;
-    protected $config;
+
+    /**
+     * @var Store
+     */
     protected $store;
+
+    /**
+     * @var array
+     */
+    protected $config;
+
+    /**
+     * @var callable
+     */
     protected $existingErrorHandler;
+
+    /**
+     * @var callable
+     */
     protected $existingExceptionHandler;
 
     public function __construct(array $config, Output $output, Store $store)
