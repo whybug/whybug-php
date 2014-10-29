@@ -1,20 +1,12 @@
 
 # Installation
 
-```
-composer global require whybug/whybug-php
-```
+1. Download the [whybug.phar](https://github.com/whybug/whybug-php/raw/master/dist/whybug.phar) file
+and put it somewhere on your system, for example `/usr/local/lib/`.
 
-## On Linux
-
-```
-# Add to php.ini
-auto_prepend_file = /home/[username]/.composer/vendor/whybug/whybug-php/auto_pretend.php
-```
-
-## On OSX
+2. Add the phar file to the `auto_prepend_file` setting in your `php.ini`.
 
 ```
 # Add to php.ini
-auto_prepend_file = /Users/[username]/.composer/vendor/whybug/whybug-php/auto_pretend.php
+auto_prepend_file = /usr/local/lib/whybug.phar
 ```
