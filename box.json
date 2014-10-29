@@ -1,0 +1,15 @@
+{
+    "files": [
+        "auto_prepend.php"
+    ],
+    "finder": [
+        {
+            "name": "*.php",
+            "exclude": [],
+            "in": "./"
+        }
+    ],
+    "main": "auto_prepend.php",
+    "output": "dist/whybug.phar",
+    "stub": true
+}
